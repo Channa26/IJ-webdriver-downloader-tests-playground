@@ -7,6 +7,7 @@ plugins {
 group = "com.playground"
 version = "1.0-SNAPSHOT"
 
+val robotVersion = "0.11.23"
 
 repositories {
     mavenCentral()
@@ -27,6 +28,14 @@ intellij {
 dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.jsoup:jsoup:1.15.3")
+
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.24")
+    testImplementation("com.intellij.remoterobot:remote-robot:$robotVersion")
+    testImplementation("com.intellij.remoterobot:ide-launcher:$robotVersion")
+    testImplementation("com.intellij.remoterobot:remote-fixtures:$robotVersion")
+    testImplementation("org.assertj:assertj-core:3.23.1")
+
 }
 
 tasks {
@@ -52,5 +61,22 @@ tasks {
 
     publishPlugin {
         token.set(System.getenv("PUBLISH_TOKEN"))
+    }
+
+    runIdeForUiTests {
+        systemProperty("robot-server.port", "8082")
+        systemProperty("robot-server.host.public", "true")
+        systemProperty("idea.trust.all.projects", "true")
+        systemProperty("ide.open.last.projects", "false")
+        systemProperty("jb.consents.confirmation.enabled", "false")
+        systemProperty("ide.mac.message.dialogs.as.sheets", "false")
+        systemProperty("ide.mac.file.chooser.native", "false")
+        systemProperty("jbScreenMenuBar.enabled", "false")
+        systemProperty("apple.laf.useScreenMenuBar", "false")
+        systemProperty("ide.show.tips.on.startup.default.value", "false")
+    }
+
+    downloadRobotServerPlugin {
+        version = robotVersion
     }
 }
