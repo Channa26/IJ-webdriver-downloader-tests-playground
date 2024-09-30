@@ -19,16 +19,11 @@ class ChromeWebdriverListParser : WebdriverListParser {
         val channels = listOf("stable", "beta", "dev")
         return channels.map { channel ->
             val section = doc.getElementById(channel)
-            val row = section?.getElementsByTag("tr")
-                ?.toList()
-                ?.filter { row ->
-                    row.getElementsByTag("code").toList()
-                        .any { it.text() == "chromedriver" }
-                }
-                ?.firstOrNull {
-                    it.getElementsByTag("code")
-                        .toList()
-                        .any { it.text() == archToLabel(architecture) }
+            val row = section!!.getElementsByTag("tr")
+                .toList()
+                .firstOrNull { it.getElementsByTag("code")
+                    .toList()
+                    .any { it.text() == archToLabel(architecture) }
                 } ?: return emptyList()
             val url = row.getElementsByTag("code")
                 .toList()
@@ -52,4 +47,5 @@ class ChromeWebdriverListParser : WebdriverListParser {
         Architecture.LINUX64 -> "linux64"
         else -> throw IllegalArgumentException("Architecture $architecture not supported")
     }
+
 }

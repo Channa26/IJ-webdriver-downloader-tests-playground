@@ -35,7 +35,7 @@ dependencies {
     testImplementation("com.intellij.remoterobot:ide-launcher:$robotVersion")
     testImplementation("com.intellij.remoterobot:remote-fixtures:$robotVersion")
     testImplementation("org.assertj:assertj-core:3.23.1")
-
+    testImplementation("org.mockito:mockito-core:5.14.0")
 }
 
 tasks {

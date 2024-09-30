@@ -84,7 +84,6 @@ class UiTests {
                 initialAvailableVersionsOptions.isNotEmpty()
             )
 
-           // val currentBrowser = browserSelector.selectedText()
             browserSelector.selectItem(Browser.CHROME.label)
             var timeoutSec = 20
             var newAvailableVersionsOptions = versionsSelector.listValues()
@@ -104,8 +103,10 @@ class UiTests {
 
             val downloadButton = pluginRootPanel.button("Download")
             Assert.assertTrue(downloadButton.isEnabled())
-            downloadButton.click()
 
+            downloadButton.click()
+            val resultLabel = awaitDownloading(pluginRootPanel)
+            Assert.assertTrue(resultLabel.lowercase().contains("chrome"))
         }
     }
 
@@ -126,30 +127,40 @@ class UiTests {
                 "Check that there is at least one version available",
                 initialAvailableVersionsOptions.isNotEmpty()
             )
-            versionsSelector.selectItem(initialAvailableVersionsOptions[2])
+            val optionToDownload = initialAvailableVersionsOptions[2]
+            versionsSelector.selectItem(optionToDownload)
 
 
             val downloadButton = pluginRootPanel.button("Download")
             Assert.assertTrue(downloadButton.isEnabled())
-            downloadButton.click()
-            var downloadTimeoutSec = 60
-            while (pluginRootPanel.getResultText()?.lowercase()
-                    ?.contains("downloaded") != true && downloadTimeoutSec-- > 0
-            ) {
-                if (downloadTimeoutSec <= 0) {
-                    Assert.fail("Timeout during download")
-                }
-                Thread.sleep(1000)
-            }
-            pluginRootPanel.getResultText()?.lowercase()?.contains(initialAvailableVersionsOptions[2])
-                ?.let { Assert.assertTrue(it) }
-//            val downloadedWebdrivers = pluginRootPanel.textArea(byXpath("//div[@class='ProjectViewTree']"))
-//            downloadedWebdrivers.hasText(initialAvailableVersionsOptions[2])
 
+            downloadButton.click()
+            val resultLabel = awaitDownloading(pluginRootPanel)
+            Assert.assertTrue(resultLabel.lowercase().contains(optionToDownload))
         }
     }
 
+    /**
+     * Waits while a webdriver is downloading with a timeout of 60 sec. Invokes Assert.fail() in case of a timeout.
+     * @return Result label's text.
+     */
+    private fun awaitDownloading(pluginRootPanel: CommonContainerFixture): String {
+        var downloadTimeoutSec = 60
+        while (pluginRootPanel.getResultText()?.lowercase()?.contains("downloaded") != true && downloadTimeoutSec-- > 0) {
+            if (downloadTimeoutSec <= 0) {
+                Assert.fail("Timeout during download")
+            }
+            Thread.sleep(1000)
+        }
+        return pluginRootPanel.getResultText()!!
+    }
 
+    /**
+     * Retrieves the panel containing all the plugin's component.
+     * If it is hidden – clicks on the corresponding stripe-button and retries.
+     * @param robot RemoteRobot instance
+     * @return The panel containing all the plugin's components
+     */
     private fun getPluginRootPanel(robot: RemoteRobot): CommonContainerFixture {
         //language=xpath
         val xpath =
